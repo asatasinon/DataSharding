@@ -1,0 +1,82 @@
+# 应用服务 WEB 访问端口
+server:
+  port: 8080
+# 应用名称
+spring:
+  application:
+    name: data-sharding
+  #  datasource:
+  #    name: master1
+  #    driverClassName: com.mysql.cj.jdbc.Driver
+  #    url: jdbc:mysql://172.16.0.49:3306/mos6.2_gsms?useSSL=false&autoReconnect=true&sessionVariables=FOREIGN_KEY_CHECKS=0&useUnicode=yes&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull
+  #    username: root
+  #    password: 123456
+  #    maxTotal: 200
+  #    maxIdle: 8
+  #    minIdle: 8
+  #    initialSize: 10
+  #    maxWaitMillis: 3000
+  #    validationQuery: select 1
+  #    testWhileIdle: true
+  #    testOnBorrow: false
+  #    testOnReturn: false
+  #    maxLifetime: 60000  #毫秒级
+
+  shardingsphere:
+    props:
+      sql:
+        show:
+          true
+    datasource:
+      names: ds0,ds1
+      ds0:
+        type: com.zaxxer.hikari.HikariDataSource
+        driverClassName: com.mysql.cj.jdbc.Driver
+        name: ds0
+        jdbc-url: jdbc:mysql://172.16.0.49:3306/mos6.2_gsms?useSSL=false&autoReconnect=true&sessionVariables=FOREIGN_KEY_CHECKS=0&useUnicode=yes&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull
+        username: root
+        password: 123456
+        maxTotal: 200
+        maxIdle: 8
+        minIdle: 8
+        initialSize: 10
+        maxWaitMillis: 3000
+        validationQuery: select 1
+        testWhileIdle: true
+        testOnBorrow: false
+        testOnReturn: false
+      ds1:
+        type: com.zaxxer.hikari.HikariDataSource
+        driverClassName: com.mysql.cj.jdbc.Driver
+        name: ds1
+        jdbc-url: jdbc:mysql://172.16.0.112:3306/mos6.2.1_gsms?useSSL=false&autoReconnect=true&sessionVariables=FOREIGN_KEY_CHECKS=0&useUnicode=yes&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull
+        username: root
+        password: 123456
+        maxTotal: 200
+        maxIdle: 8
+        minIdle: 8
+        initialSize: 10
+        maxWaitMillis: 3000
+        validationQuery: select 1
+        testWhileIdle: true
+        testOnBorrow: false
+        testOnReturn: false
+    sharding:
+      #      defaultDatabaseStrategy:
+      #        hint:
+      #          algorithmClassName: com.sinon.datasharding.algorithm.DataShardingAlgorithm
+      defaultDatabaseStrategy:
+        inline:
+          shardingColumn: id
+          algorithmExpression: ds${id % 2}
+      tables:
+        gsms_announcement:
+          actual-data-nodes: ds${0..1}.gsms_announcement
+      defaultTableStrategy:
+        none:
+          any: ""
+
+mybatis:
+  type-aliases-package: com.sinon.mapper
+  mapper-locations: classpath:*/mapper/*Mapper.xml
+
